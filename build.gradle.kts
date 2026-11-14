@@ -1,6 +1,28 @@
 plugins {
     `java-platform`
     `maven-publish`
+    id("com.vanniktech.maven.publish.base") version "0.37.0"
+}
+
+// Match API release publishing; local and snapshot publication needs no signing key.
+val centralRelease = providers.gradleProperty("centralRelease").orNull == "true"
+mavenPublishing {
+    publishToMavenCentral(
+        validateDeployment = com.vanniktech.maven.publish.DeploymentValidation.PUBLISHED
+    )
+    if (centralRelease) {
+        project.extra["signing.keyId"] = providers.environmentVariable("SIGNING_KEY_ID").orNull ?: ""
+        project.extra["signing.password"] = providers.environmentVariable("SIGNING_PASSWORD").orNull ?: ""
+        project.extra["signing.secretKeyRingFile"] = providers.environmentVariable("SIGNING_KEY_RING").orNull ?: ""
+        signAllPublications()
+    }
+}
+tasks.matching { it.name.contains("MavenCentral") }.configureEach {
+    doFirst {
+        check(centralRelease && Regex("[0-9]+\\.[0-9]+\\.[0-9]+").matches(project.version.toString())) {
+            "Central publishing requires a release projectVersion and -PcentralRelease=true."
+        }
+    }
 }
 
 group = "dev.voxelbrew"

@@ -74,11 +74,21 @@ python scripts/verify-publication.py
 On Linux use `./gradlew` and `python3` instead. Verification checks the generated POM
 and Gradle metadata for all 13 coordinates, exact versions, and absence of direct dependencies.
 The verification repository is under `build/repository`; generated files are ignored.
-This independent build does not require changes to the parent workspace composite.
+The parent workspace includes this BOM build and publishes it alongside the APIs
+with its `publishToMavenLocal` task. Application and API builds select it through
+`bomVersion`; individual API dependency versions are managed here.
 
 To publish to GitHub Packages, set `GITHUB_ACTOR` and `GITHUB_TOKEN` (with package write
 access) and run `publishBomPublicationToGitHubPackagesRepository`. Gradle properties
 `githubPackagesUser` and `githubPackagesToken` are also supported. Never commit credentials.
-No automatic release or Maven Central publication is configured.
+Before rolling out consumers, publish the selected BOM to their repository.
+For API releases, publish the release BOM to Maven Central first: it has constraints
+only, so the managed API artifacts can follow it. Set every managed version property
+to the intended fixed release, supply the same `SIGNING_KEY_ID`, `SIGNING_PASSWORD`,
+`SIGNING_KEY_RING`, `ORG_GRADLE_PROJECT_mavenCentralUsername`, and
+`ORG_GRADLE_PROJECT_mavenCentralPassword` used by the API builds, and run
+`publishAndReleaseToMavenCentral -PcentralRelease=true`. `projectVersion` must be a
+release and all managed versions must be non-snapshot. Remote publication is explicit;
+the check workflow never publishes.
 
 The BOM is MIT licensed; managed artifacts retain their own licenses.
