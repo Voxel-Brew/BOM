@@ -4,6 +4,7 @@ on:
   pull_request:
 permissions:
   contents: read
+  packages: write
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -19,3 +20,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew check publishBomPublicationToVerificationRepository
       - run: python scripts/verify-publication.py
+      - name: Publish snapshot for consumers
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: ./gradlew publishBomPublicationToGitHubPackagesRepository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
