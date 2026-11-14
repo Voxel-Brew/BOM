@@ -21,6 +21,14 @@ expected.update({
     ("dev.voxelbrew.api", name): properties[f"{name}ApiVersion"]
     for name in ("model", "import", "export", "printer", "slicer")
 })
+third_party = dict(
+    line.split("=", 1)
+    for line in (root / "third-party.versions").read_text().splitlines()
+    if line and not line.startswith("#")
+)
+assert len(third_party) == 24
+junit_version = third_party.pop("org.junit:junit-bom")
+expected.update({tuple(module.split(":")): version for module, version in third_party.items()})
 publication = root / "build/publications/bom"
 pom = ET.parse(publication / "pom-default.xml").getroot()
 ns = {"m": "http://maven.apache.org/POM/4.0.0"}
@@ -35,20 +43,29 @@ actual = {
     entry.findtext("m:version", namespaces=ns)
     for entry in entries
 }
-assert len(entries) == 13 and actual == expected, actual
+imports = [entry for entry in entries if entry.findtext("m:scope", namespaces=ns) == "import"]
+assert len(imports) == 1
+assert imports[0].findtext("m:type", namespaces=ns) == "pom"
+assert actual.pop(("org.junit", "junit-bom")) == junit_version
+assert len(entries) == len(expected) + 1 and actual == expected, actual
 metadata = json.loads((publication / "module.json").read_text())
 assert len(metadata["variants"]) == 2
 for variant in metadata["variants"]:
     assert variant["attributes"]["org.gradle.category"] == "platform"
-    assert not variant.get("dependencies")
+    assert variant["dependencies"] == [{
+        "group": "org.junit", "module": "junit-bom",
+        "version": {"requires": junit_version},
+        "attributes": {"org.gradle.category": "platform"},
+        "endorseStrictVersions": True,
+    }]
     constraints = variant["dependencyConstraints"]
     actual = {
         (item["group"], item["module"]): item["version"]["requires"]
         for item in constraints
     }
-    assert len(constraints) == 13 and actual == expected, actual
+    assert len(constraints) == len(expected) and actual == expected, actual
 repository = root / "build/repository/dev/voxelbrew/bom" / properties["projectVersion"]
 assert list(repository.glob("bom-*.pom")), "Missing repository POM"
 assert list(repository.glob("bom-*.module")), "Missing repository metadata"
 assert not list(repository.glob("*.jar")), "A BOM must not publish a JAR"
-print("Verified 13 constraints in Maven POM and both Gradle platform variants.")
+print("Verified VoxelBrew and third-party constraints plus the JUnit BOM import in Maven POM and both Gradle platform variants.")

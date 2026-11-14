@@ -29,15 +29,23 @@ group = "dev.voxelbrew"
 version = providers.gradleProperty("projectVersion").get()
 
 val applicationVersion = providers.gradleProperty("applicationVersion").get()
+val thirdPartyVersions =
+    providers.fileContents(layout.projectDirectory.file("third-party.versions")).asText.get()
+        .lineSequence()
+        .map { it.trim() }
+        .filter { it.isNotEmpty() && !it.startsWith("#") }
+        .associate { it.substringBefore('=') to it.substringAfter('=') }
+val importedPlatforms = setOf("org.junit:junit-bom")
+javaPlatform { allowDependencies() }
 val managedModules =
     listOf("util", "engine", "importer-impl", "exporter-impl", "slicer-impl", "printer-impl", "cli", "gui")
         .associate { "dev.voxelbrew:$it" to applicationVersion } +
         listOf("model", "import", "export", "printer", "slicer").associate {
             "dev.voxelbrew.api:$it" to providers.gradleProperty("${it}ApiVersion").get()
-        }
+        } + thirdPartyVersions.filterKeys { it !in importedPlatforms }
 
-managedModules.forEach { (module, moduleVersion) ->
-    require(Regex("[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9.-]+)?").matches(moduleVersion)) {
+(managedModules + thirdPartyVersions).forEach { (module, moduleVersion) ->
+    require(Regex("[0-9]+\\.[0-9]+(?:\\.[0-9]+)?(?:-[A-Za-z0-9.-]+)?").matches(moduleVersion)) {
         "$module must use a fixed version: $moduleVersion"
     }
     require(version.toString().endsWith("-SNAPSHOT") || !moduleVersion.endsWith("-SNAPSHOT")) {
@@ -46,6 +54,7 @@ managedModules.forEach { (module, moduleVersion) ->
 }
 
 dependencies {
+    importedPlatforms.forEach { api(platform("$it:${thirdPartyVersions.getValue(it)}")) }
     constraints { managedModules.forEach { (module, version) -> api("$module:$version") } }
 }
 
@@ -55,7 +64,7 @@ publishing {
             from(components["javaPlatform"])
             pom {
                 name.set("VoxelBrew BOM")
-                description.set("Version alignment for all VoxelBrew API and application modules.")
+                description.set("Version alignment for VoxelBrew modules and their third-party dependencies.")
                 url.set("https://github.com/Voxel-Brew/BOM")
                 licenses {
                     license {

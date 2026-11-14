@@ -1,0 +1,25 @@
+# Maven coordinates and existing dependency versions; no version upgrades.
+com.google.code.gson:gson=2.15.0
+com.google.dagger:dagger=2.60.1
+com.google.dagger:dagger-compiler=2.60.1
+com.google.protobuf:protobuf-java=4.30.2
+com.google.protobuf:protobuf-java-util=4.30.2
+com.google.protobuf:protoc=4.30.2
+com.twelvemonkeys.imageio:imageio-webp=3.15.0
+commons-net:commons-net=3.12.0
+info.picocli:picocli=4.7.7
+io.modelcontextprotocol.sdk:mcp=1.1.5
+javax.measure:unit-api=2.2
+org.apache.commons:commons-compress=1.28.0
+org.apache.commons:commons-math3=3.6.1
+org.apiguardian:apiguardian-api=1.1.2
+org.eclipse.jetty.ee10:jetty-ee10-servlet=12.0.16
+org.junit:junit-bom=5.12.1
+org.openjfx:javafx-base=21.0.13
+org.openjfx:javafx-controls=21.0.13
+org.openjfx:javafx-graphics=21.0.13
+org.projectlombok:lombok=1.18.48
+org.slf4j:slf4j-api=2.0.20
+org.slf4j:slf4j-jdk14=2.0.20
+pl.grzeslowski:JBambuAPI=1.7.0
+tech.units:indriya=2.2.4

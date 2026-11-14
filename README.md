@@ -1,8 +1,8 @@
 # VoxelBrew bill of materials
 
 `dev.voxelbrew:bom` aligns the versions of all five public APIs and all eight
-application modules. It publishes a Maven BOM (`pom` packaging) and Gradle platform
-metadata, with constraints only: importing it does not add libraries to a consumer.
+application modules, plus their third-party dependencies. It publishes a Maven BOM (`pom` packaging) and Gradle platform
+metadata, with constraints and a JUnit BOM import: importing it does not add libraries to a consumer.
 
 ## Managed projects
 
@@ -27,7 +27,15 @@ also define Maven publications. Currently `printer-impl`, `cli`, and `gui` do no
 Their coordinates are included for complete workspace alignment, but external
 consumers cannot resolve them until the owning project adds and publishes them.
 The website and workspace aggregator produce no Maven artifacts and have no BOM entries.
-Third-party libraries and test fixtures are outside this BOM's scope.
+Third-party library, annotation-processor, and protoc versions are centralized in
+`third-party.versions`. The BOM imports `org.junit:junit-bom` to align the complete
+JUnit family. This includes dependencies used by test fixtures. Constraints never
+add these libraries to consumers that do not request them.
+
+Gradle plugins, formatter/analysis tool settings, the Gradle/JDK toolchains, and native
+download versions/checksums stay in their owning build configuration. A Maven platform
+does not configure Gradle plugins or native downloads. JavaFX classifiers remain
+platform-specific in the GUI build; the module versions come from this BOM.
 
 ## Consume
 
@@ -72,7 +80,7 @@ python scripts/verify-publication.py
 ```
 
 On Linux use `./gradlew` and `python3` instead. Verification checks the generated POM
-and Gradle metadata for all 13 coordinates, exact versions, and absence of direct dependencies.
+and Gradle metadata for all managed coordinates, exact versions, and the metadata-only JUnit BOM import.
 The verification repository is under `build/repository`; generated files are ignored.
 The parent workspace includes this BOM build and publishes it alongside the APIs
 with its `publishToMavenLocal` task. Application and API builds select it through
@@ -83,7 +91,7 @@ access) and run `publishBomPublicationToGitHubPackagesRepository`. Gradle proper
 `githubPackagesUser` and `githubPackagesToken` are also supported. Never commit credentials.
 Before rolling out consumers, publish the selected BOM to their repository.
 For API releases, publish the release BOM to Maven Central first: it has constraints
-only, so the managed API artifacts can follow it. Set every managed version property
+and a metadata-only JUnit import, so the managed API artifacts can follow it. Set every managed version property
 to the intended fixed release, supply the same `SIGNING_KEY_ID`, `SIGNING_PASSWORD`,
 `SIGNING_KEY_RING`, `ORG_GRADLE_PROJECT_mavenCentralUsername`, and
 `ORG_GRADLE_PROJECT_mavenCentralPassword` used by the API builds, and run
