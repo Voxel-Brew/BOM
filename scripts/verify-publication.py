@@ -26,7 +26,7 @@ third_party = dict(
     for line in (root / "third-party.versions").read_text().splitlines()
     if line and not line.startswith("#")
 )
-assert len(third_party) == 24
+assert len(third_party) == 25
 junit_version = third_party.pop("org.junit:junit-bom")
 expected.update({tuple(module.split(":")): version for module, version in third_party.items()})
 publication = root / "build/publications/bom"

@@ -13,6 +13,7 @@ javax.measure:unit-api=2.2
 org.apache.commons:commons-compress=1.28.0
 org.apache.commons:commons-math3=3.6.1
 org.apiguardian:apiguardian-api=1.1.2
+org.assertj:assertj-core=3.27.7
 org.eclipse.jetty.ee10:jetty-ee10-servlet=12.0.16
 org.junit:junit-bom=5.12.1
 org.openjfx:javafx-base=21.0.13

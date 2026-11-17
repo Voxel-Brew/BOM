@@ -28,3 +28,7 @@ There is no unit-test source set. Treat the Gradle check plus publication verifi
 ## Commit & Pull Request Guidelines
 
 Recent commits use concise, imperative subjects such as `Manage third-party libraries and JUnit alignment in BOM`. Keep each commit focused. Pull requests should explain which coordinates or publication behavior changed, why the versions are compatible, and how verification was performed. Link relevant issues or upstream releases. Never commit repository credentials, signing keys, or generated publication files.
+
+## AssertJ in Java tests
+
+Use AssertJ (org.assertj:assertj-core) for assertions in Java unit, integration, and end-to-end tests. Keep JUnit Jupiter for test lifecycle, parameterization, and execution. Declare AssertJ without a version in test dependencies; the BOM manages its version. Prefer ssertThat, ssertThatThrownBy, and ssertThatCode with descriptive failure messages and appropriate numeric tolerances. Do not add new JUnit Assertions calls.
