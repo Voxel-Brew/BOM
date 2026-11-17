@@ -28,8 +28,9 @@ Their coordinates are included for complete workspace alignment, but external
 consumers cannot resolve them until the owning project adds and publishes them.
 The website and workspace aggregator produce no Maven artifacts and have no BOM entries.
 Third-party library, annotation-processor, and protoc versions are centralized in
-`third-party.versions`. The BOM imports `org.junit:junit-bom` to align the complete
-JUnit family. This includes dependencies used by test fixtures. Constraints never
+`third-party.versions`. The BOM manages `org.assertj:assertj-core` for Java test
+assertions and imports `org.junit:junit-bom` to align the complete JUnit family.
+This includes dependencies used by test fixtures. Constraints never
 add these libraries to consumers that do not request them.
 
 Gradle plugins, formatter/analysis tool settings, the Gradle/JDK toolchains, and native
