@@ -101,3 +101,10 @@ release and all managed versions must be non-snapshot. Remote publication is exp
 the check workflow never publishes.
 
 The BOM is MIT licensed; managed artifacts retain their own licenses.
+
+## SpotBugs conventions
+
+The `spotbugs-conventions` included build supplies the `dev.voxelbrew.spotbugs` Gradle plugin
+to the application and public APIs. It keeps the plugin and analyzer versions, analysis
+settings, and report configuration in one place. Consumers use the BOM source checkout
+through Gradle plugin management. The Maven BOM publication remains a Java platform.

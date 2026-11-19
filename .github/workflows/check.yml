@@ -20,6 +20,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew check publishBomPublicationToVerificationRepository
       - run: python scripts/verify-publication.py
+      - run: ./gradlew -p spotbugs-conventions build
       - name: Publish snapshot for consumers
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: ./gradlew publishBomPublicationToGitHubPackagesRepository
