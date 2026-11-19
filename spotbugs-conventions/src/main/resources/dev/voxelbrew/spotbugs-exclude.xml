@@ -24,4 +24,84 @@
         <Method name="excludedZones"/>
         <Bug pattern="EI_EXPOSE_REP"/>
     </Match>
+    <!-- The application graph deliberately shares its injected configuration service with its participants. -->
+    <Match>
+        <Class name="dev.voxelbrew.util.di.ApplicationModule"/>
+        <Method name="configuration"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <!-- The bundle exposes only immutable strings and creates fresh key enumerations. -->
+    <Match>
+        <Class name="dev.voxelbrew.util.i18n.Translations"/>
+        <Method name="bundle"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <!-- The window scope returns the same live Workbench to its owner on the JavaFX thread. -->
+    <Match>
+        <Class name="dev.voxelbrew.gui.DefaultGuiFactory$Scope"/>
+        <Method name="workbench"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <!-- This is the fallback executable in WSL?s standard C-drive mount, checked for existence before use. -->
+    <Match>
+        <Class name="dev.voxelbrew.gui.Appearance"/>
+        <Method name="systemDark"/>
+        <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
+    </Match>
+    <!-- The view captures an immutable copy of placement records. -->
+    <Match>
+        <Class name="dev.voxelbrew.exporter.ModelViews$1"/>
+        <Method name="instances"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <!-- The view captures a detached immutable ManufacturingModel. -->
+    <Match>
+        <Class name="dev.voxelbrew.exporter.ModelViews$4"/>
+        <Method name="manufacturingModel"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <!-- ManufacturingModel copies its mesh map and exposes immutable model data. -->
+    <Match>
+        <Class name="dev.voxelbrew.exporter.MeshExportDialog$Settings"/>
+        <Method name="snapshot"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <!-- ManufacturingModel copies its mesh map and exposes immutable model data. -->
+    <Match>
+        <Class name="dev.voxelbrew.exporter.MeshExportDialog$Settings"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <!-- ManufacturingModel is a detached immutable revision and can be shared across requests. -->
+    <Match>
+        <Class name="dev.voxelbrew.slicer.internal.ProcessSlicer$Request"/>
+        <Method name="model"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <!-- ManufacturingModel is a detached immutable revision and can be shared across requests. -->
+    <Match>
+        <Class name="dev.voxelbrew.slicer.internal.ProcessSlicer$Request"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <!-- This package-private registry has one final subclass and neither class has a finalizer. -->
+    <Match>
+        <Class name="dev.voxelbrew.printer.ServiceLoaderDriverRegistry"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <!-- This built-in provider helper validates constructor arguments before storing them. Its
+         registered subclasses are final and have no finalizers. -->
+    <Match>
+        <Class name="dev.voxelbrew.exporter.GeometryExporterProvider"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <!-- The constructor only resolves and stores a plugin directory. The built-in subclasses
+         are final and have no finalizers. The base class is shared with the printing package. -->
+    <Match>
+        <Class name="dev.voxelbrew.exporter.MeshExporter"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
 </FindBugsFilter>
