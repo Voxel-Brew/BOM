@@ -27,6 +27,9 @@ There is no unit-test source set. Treat the Gradle check plus publication verifi
 
 ## Pre-commit SpotBugs
 
+The `spotbugs-conventions` included build owns the shared Gradle plugin, analyzer versions,
+reports, and exclusions. Application and API builds load it from the BOM source checkout.
+
 The BOM has no Java sources to analyze. Before committing changes to the shared
 SpotBugs convention, run `:voxelbrew:basicChecks` and the affected APIs?
 qualified `spotbugsMain` tasks with the workspace wrapper.
