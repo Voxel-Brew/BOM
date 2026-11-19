@@ -25,6 +25,12 @@ Use four-space indentation in Kotlin and Python, LF line endings except for `.ba
 
 There is no unit-test source set. Treat the Gradle check plus publication verifier as the required test suite. When adding, removing, or changing a constraint, update the verifier's expected counts or mappings as needed and inspect both Maven POM and Gradle module behavior. Run the same two commands used by CI before opening a pull request.
 
+## Pre-commit SpotBugs
+
+The BOM has no Java sources to analyze. Before committing changes to the shared
+SpotBugs convention, run `:voxelbrew:basicChecks` and the affected APIs?
+qualified `spotbugsMain` tasks with the workspace wrapper.
+
 ## Commit & Pull Request Guidelines
 
 Recent commits use concise, imperative subjects such as `Manage third-party libraries and JUnit alignment in BOM`. Keep each commit focused. Pull requests should explain which coordinates or publication behavior changed, why the versions are compatible, and how verification was performed. Link relevant issues or upstream releases. Never commit repository credentials, signing keys, or generated publication files.
