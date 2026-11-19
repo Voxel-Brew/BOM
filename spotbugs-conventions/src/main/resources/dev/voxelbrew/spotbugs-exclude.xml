@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Both list levels are immutable copies and Segment copies its Double values. -->
+    <Match>
+        <Class name="dev.voxelbrew.api.model.geometry.PlanarProfile"/>
+        <Method name="loops"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <!-- Both list levels are immutable copies and Point is an immutable record. -->
+    <Match>
+        <Class name="dev.voxelbrew.api.model.printing.PrintProfile$Printer"/>
+        <Method name="excludedZones"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <!-- Both list levels are immutable copies and Entity copies its immutable point data. -->
+    <Match>
+        <Class name="dev.voxelbrew.api.model.sketch.SketchText$Glyph"/>
+        <Method name="contours"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <!-- Both list levels are immutable copies and Point is an immutable record. -->
+    <Match>
+        <Class name="dev.voxelbrew.api.printer.Profile"/>
+        <Method name="excludedZones"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+</FindBugsFilter>
