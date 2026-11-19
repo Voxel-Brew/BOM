@@ -21,7 +21,7 @@ jobs:
       - run: ./gradlew check publishBomPublicationToVerificationRepository
       - run: python scripts/verify-publication.py
       - name: Publish snapshot for consumers
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
         run: ./gradlew publishBomPublicationToGitHubPackagesRepository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
