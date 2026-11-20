@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module
+  PUBLIC '-//Checkstyle//DTD Checkstyle Configuration 1.3//EN'
+  'https://checkstyle.org/dtds/configuration_1_3.dtd'>
+<module name="Checker">
+    <module name="SuppressionSingleFilter">
+        <property name="checks" value="EmptyCatchBlock|CyclomaticComplexity|MatchXpath"/>
+        <property name="files" value="[/\\]src[/\\]test[/\\]"/>
+    </module>
+    <module name="SuppressionSingleFilter">
+        <property name="checks" value="CyclomaticComplexity"/>
+        <property name="files" value="[/\\]dev[/\\]voxelbrew[/\\]api[/\\]"/>
+    </module>
+    <module name="SuppressionSingleFilter">
+        <property name="checks" value="MissingJavadocType"/>
+        <property name="files" value="^(?!.*[/\\]dev[/\\]voxelbrew[/\\]api[/\\].*(Provider|Driver)\.java$)"/>
+    </module>
+    <module name="TreeWalker">
+        <module name="EmptyStatement"/>
+        <module name="EmptyCatchBlock"/>
+        <module name="MissingOverride"/>
+        <module name="MissingDeprecated"/>
+        <module name="PackageDeclaration">
+            <property name="matchDirectoryStructure" value="true"/>
+        </module>
+        <module name="NeedBraces">
+            <property name="allowSingleLineStatement" value="true"/>
+        </module>
+        <module name="CyclomaticComplexity">
+            <property name="max" value="15"/>
+            <property name="switchBlockAsSingleDecisionPoint" value="true"/>
+        </module>
+        <module name="MatchXpath">
+            <property name="id" value="NestedTernary"/>
+            <property name="query" value="//QUESTION[ancestor::QUESTION]"/>
+            <message key="matchxpath.match" value="Use explicit branches for nested conditional expressions."/>
+        </module>
+        <module name="MatchXpath">
+            <property name="id" value="LostCause"/>
+            <property name="query" value="//LITERAL_THROW[ancestor::LITERAL_CATCH]/EXPR/LITERAL_NEW/ELIST/EXPR[last()][.//METHOD_CALL/DOT/IDENT[@text='getMessage']]"/>
+            <message key="matchxpath.match" value="Pass the original exception when translating its message."/>
+        </module>
+        <module name="MissingJavadocType">
+            <property name="tokens" value="INTERFACE_DEF"/>
+        </module>
+        <module name="IllegalImport">
+            <property name="illegalPkgs" value=""/>
+            <property name="regexp" value="true"/>
+            <property name="illegalClasses" value="^org\.junit\.jupiter\.api\.Assertions(?:\..*)?$"/>
+        </module>
+        <module name="SuppressionXpathSingleFilter">
+            <property name="checks" value="IllegalImport"/>
+            <property name="files" value="[/\\](GitHubReleaseSourceTest|WindowResourcesTest)\.java$"/>
+            <property name="query" value="//STATIC_IMPORT[DOT/IDENT[@text='assertTimeoutPreemptively']]"/>
+        </module>
+    </module>
+</module>
