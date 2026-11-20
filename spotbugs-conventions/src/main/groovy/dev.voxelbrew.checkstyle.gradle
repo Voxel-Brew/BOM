@@ -1,0 +1,15 @@
+plugins {
+    id 'checkstyle'
+}
+
+def policy = getClass().getResource('/dev/voxelbrew/checkstyle.xml').getText('UTF-8')
+checkstyle {
+    toolVersion = '12.3.1'
+    config = resources.text.fromString(policy)
+    maxWarnings = 0
+}
+
+tasks.withType(Checkstyle).configureEach {
+    // Generated protocol classes live outside the handwritten source tree.
+    exclude '**/persistence/proto/**'
+}
