@@ -1,7 +1,7 @@
-name: Release BOM to Maven Central
+name: Release BOM 1.0 tag to Maven Central
 on:
   push:
-    tags: ['v*']
+    tags: ['v1.0.*']
 permissions:
   contents: read
 jobs:
