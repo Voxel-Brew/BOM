@@ -27,8 +27,9 @@ There is no unit-test source set. Treat the Gradle check plus publication verifi
 
 ## Pre-commit SpotBugs
 
-The `spotbugs-conventions` included build owns the shared Gradle plugin, analyzer versions,
-reports, and exclusions. Application and API builds load it from the BOM source checkout.
+The application and APIs consume the shared analysis script and Spotless policy from
+`quality/` on public BOM `master`. Keep the existing XML resource URLs stable.
+Promote release-branch policy changes to `master` before merging their consumers.
 
 The BOM has no Java sources to analyze. Before committing changes to the shared
 SpotBugs convention, run `:voxelbrew:basicChecks` and the affected APIs?

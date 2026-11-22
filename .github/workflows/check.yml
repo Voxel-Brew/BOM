@@ -20,7 +20,21 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew check publishBomPublicationToVerificationRepository
       - run: python scripts/verify-publication.py
+      - run: python -m unittest discover -s scripts -p "*_test.py"
       - run: ./gradlew -p spotbugs-conventions build
+      - name: Verify the shared analysis script in a standalone Java build
+        shell: bash
+        run: |
+          sample="$RUNNER_TEMP/quality-consumer"
+          mkdir -p "$sample/src/main/java"
+          echo "rootProject.name = 'quality-consumer'" > "$sample/settings.gradle"
+          cat > "$sample/build.gradle" <<EOF
+          plugins { id 'java' }
+          repositories { mavenCentral() }
+          apply from: file('$GITHUB_WORKSPACE/quality/analysis.gradle')
+          EOF
+          echo 'public final class Sample {}' > "$sample/src/main/java/Sample.java"
+          ./gradlew -p "$sample" checkstyleMain spotbugsMain
       - name: Publish snapshot for consumers
         if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
         run: ./gradlew publishBomPublicationToGitHubPackagesRepository
