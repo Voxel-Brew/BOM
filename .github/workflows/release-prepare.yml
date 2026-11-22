@@ -1,0 +1,34 @@
+name: Prepare release
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: bom-release-mutations
+  cancel-in-progress: false
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_PR_TOKEN || github.token }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: node --test .github/scripts/release.test.cjs
+      - name: Create release and next-minor branches
+        id: prepare
+        run: node .github/scripts/release.cjs prepare
+      - name: Open next-minor pull request
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PR_TOKEN || github.token }}
+          BRANCH: ${{ steps.prepare.outputs.branch }}
+        run: |
+          if [[ -z "$(gh pr list --base master --head "$BRANCH" --json number --jq '.[0].number // empty')" ]]; then
+            gh pr create --base master --head "$BRANCH" --title "Advance master to the next minor snapshot" --body "Begin development after cutting the release branch."
+          fi
