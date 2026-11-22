@@ -38,6 +38,19 @@ download versions/checksums stay in their owning build configuration. A Maven pl
 does not configure Gradle plugins or native downloads. JavaFX classifiers remain
 platform-specific in the GUI build; the module versions come from this BOM.
 
+Java projects can opt into the VoxelBrew Checkstyle and SpotBugs configuration after
+applying the Java plugin:
+
+```kotlin
+val qualityPolicy = "https://raw.githubusercontent.com/Voxel-Brew/BOM/master/quality"
+apply(from = "$qualityPolicy/analysis.gradle")
+```
+
+Spotless consumers can read the formatter versions and style settings from
+`spotless.properties` at the same URL. The Java 21 source-file checker
+`JavaMemberOrder.java` accepts the source directories to inspect. These files follow the public `master`
+branch independently of the Maven BOM version selected by the consumer.
+
 ## Consume
 
 Configure a repository containing the BOM and the selected artifacts. For local
