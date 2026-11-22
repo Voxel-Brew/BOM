@@ -36,6 +36,9 @@ qualified `spotbugsMain` tasks with the workspace wrapper.
 
 ## Commit & Pull Request Guidelines
 
+Prefer **Rebase and merge** for pull requests. Use **Squash and merge** only as an exception.
+The **Create a merge commit** option is blocked.
+
 Recent commits use concise, imperative subjects such as `Manage third-party libraries and JUnit alignment in BOM`. Keep each commit focused. Pull requests should explain which coordinates or publication behavior changed, why the versions are compatible, and how verification was performed. Link relevant issues or upstream releases. Never commit repository credentials, signing keys, or generated publication files.
 
 ## AssertJ in Java tests
