@@ -1,0 +1,85 @@
+import groovy.xml.XmlSlurper
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
+
+// Resolve the tool version from the same revision as this convention.
+def versionsUri = buildscript.sourceURI.resolve('../third-party.versions')
+def toolModule = 'com.github.siom79.japicmp:japicmp'
+def jarTask = tasks.named('jar', Jar)
+def currentClasspath = configurations.runtimeClasspath
+
+def stableVersion = /[0-9]+\.[0-9]+\.[0-9]+/
+def parts = { String version -> version.tokenize('.').collect { it.toBigInteger() } }
+def compare = { left, right ->
+    (left[0] <=> right[0]) ?: (left[1] <=> right[1]) ?: (left[2] <=> right[2])
+}
+
+def compatibility = tasks.register('checkBinaryCompatibility', JavaExec) {
+    group = 'verification'
+    description = 'Check JVM binary compatibility with the latest eligible Maven Central release.'
+    dependsOn jarTask, currentClasspath
+    mainClass = 'japicmp.JApiCmp'
+    def coordinate = "${project.group}:${project.name}"
+    def candidate = project.version.toString() - ~/-SNAPSHOT$/
+    def artifact = project.name
+    def central = "https://repo.maven.apache.org/maven2/${project.group.replace('.', '/')}/${artifact}"
+    doFirst {
+        def baseline
+        if (!(candidate ==~ stableVersion)) {
+            throw new GradleException("Expected X.Y.Z or X.Y.Z-SNAPSHOT, found ${project.version}")
+        }
+        def connection = URI.create("${central}/maven-metadata.xml").toURL().openConnection()
+        connection.connectTimeout = 15000
+        connection.readTimeout = 30000
+        try {
+            if (connection.responseCode != 404) {
+                def metadata = connection.inputStream.withCloseable { new XmlSlurper().parse(it) }
+                def versions = metadata.versioning.versions.version
+                if (metadata.groupId.text() != project.group || metadata.artifactId.text() != artifact ||
+                        versions.isEmpty() || versions.any { !it.text().trim() }) {
+                    throw new GradleException("Invalid Maven Central metadata for ${coordinate}")
+                }
+                def target = parts(candidate)
+                baseline = versions.collect { it.text() }.findAll {
+                    if (!(it ==~ stableVersion)) return false
+                    def value = parts(it)
+                    value[0] == target[0] && compare(value, target) <= 0
+                }.max { a, b -> compare(parts(a), parts(b)) }
+            }
+        } finally {
+            connection.disconnect()
+        }
+        if (!baseline) {
+            logger.lifecycle("No eligible Maven Central baseline for ${coordinate}:${candidate}")
+            throw new StopExecutionException()
+        }
+        logger.lifecycle("Comparing ${coordinate}:${project.version} against Maven Central ${coordinate}:${baseline}")
+        def toolLine = resources.text.fromUri(versionsUri).asString().readLines().find {
+            it.startsWith(toolModule + '=')
+        }
+        if (!toolLine) throw new GradleException("Missing ${toolModule} in ${versionsUri}")
+        def tool = dependencies.create("${toolModule}:${toolLine.split('=', 2)[1]}")
+        classpath = configurations.detachedConfiguration(tool)
+
+        def old = configurations.detachedConfiguration(dependencies.create("${coordinate}:${baseline}"))
+        old.resolutionStrategy.useGlobalDependencySubstitutionRules = false
+        old.attributes.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+        def oldClasspath = old.incoming.artifactView {
+            componentFilter { id ->
+                !(id instanceof ModuleComponentIdentifier && id.group == project.group && id.module == artifact)
+            }
+        }.files
+        def oldJar = new File(temporaryDir, "${artifact}-${baseline}.jar")
+        def download = URI.create("${central}/${baseline}/${oldJar.name}").toURL().openConnection()
+        download.connectTimeout = 15000
+        download.readTimeout = 60000
+        try {
+            download.inputStream.withCloseable { input -> oldJar.withOutputStream { it << input } }
+        } finally {
+            download.disconnect()
+        }
+        args '--old', oldJar, '--new', jarTask.get().archiveFile.get().asFile,
+                '--old-classpath', oldClasspath.asPath, '--new-classpath', currentClasspath.asPath,
+                '--only-incompatible', '--error-on-binary-incompatibility'
+    }
+}
+tasks.named('check') { dependsOn compatibility }
