@@ -1,4 +1,5 @@
 # Maven coordinates and existing dependency versions; no version upgrades.
+com.github.siom79.japicmp:japicmp=0.27.0
 com.google.code.gson:gson=2.15.0
 com.google.dagger:dagger=2.60.1
 com.google.dagger:dagger-compiler=2.60.1
