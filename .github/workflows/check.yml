@@ -26,14 +26,18 @@ jobs:
         shell: bash
         run: |
           sample="$RUNNER_TEMP/quality-consumer"
-          mkdir -p "$sample/src/main/java"
+          mkdir -p "$sample/src/main/java/example"
           echo "rootProject.name = 'quality-consumer'" > "$sample/settings.gradle"
           cat > "$sample/build.gradle" <<EOF
           plugins { id 'java' }
           repositories { mavenCentral() }
           apply from: file('$GITHUB_WORKSPACE/quality/analysis.gradle')
           EOF
-          echo 'public final class Sample {}' > "$sample/src/main/java/Sample.java"
+          cat > "$sample/src/main/java/example/Sample.java" <<'EOF'
+          package example;
+
+          public final class Sample {}
+          EOF
           ./gradlew -p "$sample" checkstyleMain spotbugsMain
       - name: Publish snapshot for consumers
         if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
